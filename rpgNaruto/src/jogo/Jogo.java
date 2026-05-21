@@ -1,17 +1,17 @@
 package jogo;
 
-import itens.EfeitoAtaque;
-import itens.EfeitoCura;
+import itens.FabricaDeItens;
 import itens.Inventario;
-import itens.Item;
 import java.util.Random;
 import java.util.Scanner;
 import personagens.Inimigo;
-import personagens.Maligno;
 import personagens.Naruto;
 import personagens.Personagem;
 import personagens.Sakura;
 import personagens.Sasuke;
+import servicos.ResultadoBatalha;
+import servicos.ServicoDeRecompensa;
+import servicos.SistemaDeBatalha;
 
 // Clone sendo utilizado para saquear inventário de inimigos e para restaurar vida do jogador
 
@@ -38,20 +38,8 @@ public class Jogo {
         Personagem jogador = escolherPersonagem();
         Inventario inventario = jogador.getInventario();
 
-            inventario.adicionarItem(
-        new Item(
-            "Poção de Cura",
-            "Recupera 50 de HP",
-            new EfeitoCura(50)
-        )
-    );
-      inventario.adicionarItem(
-    new Item(
-        "Kunai",
-        "Aumenta o ataque temporariamente",
-        new EfeitoAtaque(5)
-    )
-);
+        inventario.adicionarItem(FabricaDeItens.criarPocao());
+        inventario.adicionarItem(FabricaDeItens.criarKunai());
 
         savePoint = inventario.clone();
 
@@ -106,17 +94,10 @@ public class Jogo {
                 System.out.println(
                         "Um espadachim enorme aparece. É o Zabuza, um ninja da Névoa, famoso por assassinatos e pela espada gigante..");
 
-                SistemaDeBatalha sistemaBatalha = new SistemaDeBatalha(sc); // 'sc' é o seu Scanner estático
-               ResultadoBatalha resultado = sistemaBatalha.batalhar(
-    jogador,
-    alvo.getInimigo()
-);
+                ResultadoBatalha resultado = enfrentar(jogador, alvo.getInimigo());
 
-                if (resultado == ResultadoBatalha.DERROTA) {
-                    System.out.println("Você foi derrotado! Aplicando lógica de Save Point/Revive...");
-                    // Chame sua lógica de restauração aqui
-                } else {
-                    System.out.println("Vitória! Avançando na história ninja...");
+                if (resultado == ResultadoBatalha.FUGA) {
+                    return 3;
                 }
 
                 System.out.println("\nAo revistar o corpo, você encontra um selo de invocação RECENTE.");
@@ -139,7 +120,12 @@ public class Jogo {
                 System.out.println("Aqui atuam ninjas que gostam de experimento e teste de corpo.");
                 System.out.println(
                         "Quem aparece? Orochimaru, um dos ninjas mais perigosos, obcecado por ganhar poder e viver pra sempre.");
-                batalhar(jogador, alvo.getInimigo());
+               
+                ResultadoBatalha resultado = enfrentar(jogador, alvo.getInimigo());
+
+                if (resultado == ResultadoBatalha.FUGA) {
+                    return 3;
+                }
 
                 System.out.println("\nEntre os pergaminhos dele você encontra menção a 'pagamento vindo do deserto'.");
                 System.out.println("Ou seja: alguém da região da Areia está abastecendo esse esquema.");
@@ -156,11 +142,7 @@ public class Jogo {
                 System.out.println("Ninguém briga nesse trecho porque todo mundo precisa desse caminho.");
                 if (new Random().nextBoolean()) {
                     jogador.getInventario().adicionarItem(
-                        new Item(
-                            "Poção de Cura",
-                            "Recupera 50 de HP",
-                            new EfeitoCura(50)
-                        )
+                        FabricaDeItens.criarPocao()
                     );
                     System.out.println("Um mercador ninja te reconhece e te entrega 1 Poção de Cura.");
                 } else {
@@ -193,7 +175,11 @@ public class Jogo {
                         "Contexto rápido: Rasa é o antigo Kazekage e controla areia com metal. Ele não confia fácil.");
                 System.out.println(
                         "Rasa: “Quero saber por que Konoha está rastreando fluxos de chakra na nossa região.”");
-                batalhar(jogador, alvo.getInimigo());
+                ResultadoBatalha resultado = enfrentar(jogador, alvo.getInimigo());
+
+                if (resultado == ResultadoBatalha.FUGA) {
+                    return 3;
+                }
                 System.out.println(
                         "Terminada a luta, chega um mensageiro da Vila da Chuva dizendo que o ritual começou.");
                 System.out.println(
@@ -212,7 +198,11 @@ public class Jogo {
                 System.out.println("Konan: “Você é de Konoha. Não deveria ter chegado tão longe.”");
                 System.out.println("Konan: “Pain vai lutar. Mas sei que você está atrás de alguém acima dele.”");
                 System.out.println("Logo depois disso, chega o Pain, ele acredita que dor traz paz..");
-                batalhar(jogador, alvo.getInimigo());
+                ResultadoBatalha resultado = enfrentar(jogador, alvo.getInimigo());
+
+                if (resultado == ResultadoBatalha.FUGA) {
+                    return 3;
+                }
                 System.out.println("Entre os registros dele você encontra o nome do verdadeiro mandante: 'Maligno'.");
                 System.out.println("Localização apontada: Oráculo do Triunfo, um lugar antigo usado pra rituais.");
                 pressionarEnter();
@@ -234,7 +224,7 @@ public class Jogo {
 
             case 7 -> {
                 Local alvo = locais[5];
-                batalhar(jogador, alvo.getInimigo());
+                enfrentar(jogador, alvo.getInimigo());
                 return -1;
             }
 
@@ -250,6 +240,43 @@ public class Jogo {
         System.out.println("----------------------------------------------\n");
     }
 
+    private static ResultadoBatalha enfrentar(Personagem jogador, Inimigo inimigo) {
+        while (true) {
+            SistemaDeBatalha sistema = new SistemaDeBatalha(sc);
+            ResultadoBatalha resultado = sistema.batalhar(jogador, inimigo);
+
+            if (resultado == ResultadoBatalha.VITORIA) {
+                ServicoDeRecompensa.aplicarVitoria(jogador, inimigo);
+                savePoint = jogador.getInventario().clone();
+                System.out.println("Vitoria! Avancando na historia ninja...");
+                return resultado;
+            }
+
+            if (resultado == ResultadoBatalha.FUGA) {
+                return resultado;
+            }
+
+            aplicarRevive(jogador);
+        }
+    }
+
+    private static void aplicarRevive(Personagem jogador) {
+        if (revivesRestantes > 0) {
+            revivesRestantes--;
+            System.out.println("\nVoce foi derrotado... mas tinha chakra de retorno.");
+            System.out.println("Revives restantes: " + revivesRestantes);
+
+            jogador.setPontosVida(100);
+
+            if (savePoint != null) {
+                jogador.setInventario(savePoint.clone());
+            }
+        } else {
+            System.out.println("\nVoce foi derrotado... GAME OVER.");
+            System.exit(0);
+        }
+    }
+
     private static void abrirBauAreia(Personagem jogador, Inimigo inimigoOriginal) throws Exception {
         int tesouro = random.nextInt(1, 4);
 
@@ -257,11 +284,7 @@ public class Jogo {
 
         case 1 -> {
             jogador.getInventario().adicionarItem(
-                new Item(
-                    "Poção de Cura",
-                    "Recupera 50 de HP",
-                    new EfeitoCura(50)
-                )
+                FabricaDeItens.criarPocao()
             );
 
             System.out.println("Você achou uma poção de cura no baú.");
@@ -303,195 +326,6 @@ public class Jogo {
                 yield new Naruto();
             }
         };
-    }
-
-    private static void batalhar(Personagem jogador, Inimigo inimigo) {
-        if (inimigo.getPontosVida() <= 0) {
-            System.out.println("\nVocê derrotou o inimigo!");
-
-            jogador.getInventario().transferirItens(inimigo.getInventario());
-
-            System.out.println("Você coletou os itens do inimigo:");
-            System.out.println(jogador.getInventario());
-        }
-
-        if (inimigo.getNome().equalsIgnoreCase("Maligno")) {
-            Maligno maligno = (Maligno) inimigo;
-            maligno.ataqueMortal(jogador);
-            System.out.println("\n\n\t\t\tGAME OVER!!");
-            System.out.println("\n\n\t\t\tCONTRA O MALIGNO NINGUEM PODE");
-            System.exit(0);
-        }
-        System.out.println("\n--- BATALHA INICIADA ---");
-        System.out.println("Inimigo: " + inimigo);
-
-        while (jogador.getPontosVida() > 0 && inimigo.getPontosVida() > 0) {
-            System.out.println("\n" + jogador.getNome() + ": " + jogador.getPontosVida() + " HP");
-            System.out.println(inimigo.getNome() + ": " + inimigo.getPontosVida() + " HP");
-
-            System.out.println("\n1 - Atacar");
-            System.out.println("2 - Usar item");
-            System.out.println("3 - Fugir");
-            System.out.print("Escolha: ");
-
-            int acao;
-            while (true) {
-                String entrada = sc.nextLine();
-                System.out.println("----------------------------------------------\n");
-                try {
-                    acao = Integer.parseInt(entrada);
-                    break;
-                } catch (NumberFormatException e) {
-                    System.out.print("Opção inválida. Digite 1, 2 ou 3: ");
-                }
-            }
-
-            if (acao == 3) {
-                if (random.nextBoolean()) {
-                    System.out.println("Você conseguiu fugir!");
-                    return;
-                } else {
-                    System.out.println("Falhou em fugir! O inimigo contra-ataca!");
-                }
-            }
-            Inventario inventario = jogador.getInventario();
-            if (acao == 2) {
-                usarItem(inventario, jogador);
-            }
-
-            int dadoJogador = random.nextInt(1, 11);
-            int dadoInimigo = random.nextInt(1, 11);
-
-            System.out.println(jogador.getNome() + " rolou: " + dadoJogador);
-            System.out.println(inimigo.getNome() + " rolou: " + dadoInimigo);
-
-            if (dadoJogador > dadoInimigo) {
-                System.out.println("\n" + jogador.getNome() + " agiu mais rápido!");
-                jogador.atacar(inimigo, dadoJogador);
-
-                if (inimigo.getPontosVida() <= 0) {
-                    System.out.println("\nVocê derrotou o inimigo!");
-                    System.out.println(jogador);
-                    jogador.setNivel(jogador.getNivel() + 1); // sobe nível do jogador
-                    jogador.setAtaque(jogador.getAtaque() + 10); // aumenta a força do ataque
-                    jogador.setDefesa(jogador.getDefesa() + 3);
-                    jogador.setPontosVida(jogador.getPontosVida() + 50);
-                    // sorteio de poderzinhos
-                    int sorte = random.nextInt(4);
-
-                    switch (sorte) {
-                        case 0:
-                            inventario.adicionarItem(
-                                new Item(
-                                    "Kunai",
-                                    "Aumenta o ataque temporariamente",
-                                    new EfeitoAtaque(5)
-                                )
-                            );
-                            break;
-                        
-                        case 1:
-                            inventario.adicionarItem(
-                                new Item(
-                                    "Poção de Cura",
-                                    "Recupera 50 de HP",
-                                    new EfeitoCura(50)
-                                )
-                            );
-                            break;
-                        
-                        case 2:
-                            inventario.adicionarItem(
-                                new Item(
-                                    "Rinnegan",
-                                    "Poder da vitalidade (+60hp)",
-                                    new EfeitoCura(60)
-                                )
-                            );
-                            break;
-                        
-                        case 3:
-                            break;
-                    }
-                    // caso o jogador ganhe do inimigo Pain
-                    if (inimigo.getNome().equalsIgnoreCase("Pain")) {
-                        System.out.println("Sua vitória foi convertida em prêmios!\nVocê ganhou +50hp e +8 de defesa.");
-                        jogador.setPontosVida(jogador.getPontosVida() + 35);
-                        jogador.setDefesa(jogador.getDefesa() + 10);
-                    }
-                    savePoint = jogador.getInventario().clone();
-                    System.out.println("\nParabéns, você subiu de nível!\nNível atual:" + jogador.getNivel()
-                            + "\nAgora o seu ataque e defesa ganharam um upgrade! Seu ataque vale: "
-                            + jogador.getAtaque() + " e sua defesa: " + jogador.getDefesa());
-                    System.out.println(jogador);
-                    return;
-                }
-
-            } else if (dadoInimigo > dadoJogador) {
-                System.out.println("\n" + inimigo.getNome() + " agiu mais rápido!");
-                inimigo.atacar(jogador, dadoInimigo);
-
-                if (jogador.getPontosVida() <= 0) {
-                    if (revivesRestantes > 0) {
-                        revivesRestantes--;
-                        System.out.println("\nVocê foi derrotado... mas tinha chakra de retorno.");
-                        System.out.println("Revives restantes: " + revivesRestantes);
-
-                        jogador.setPontosVida(100);
-
-                        if (savePoint != null) {
-                            jogador.setInventario(savePoint.clone());
-                        }
-
-                        continue;
-                    } else {
-                        System.out.println("\nVocê foi derrotado... GAME OVER.");
-                        System.exit(0);
-                    }
-                }
-
-            } else {
-                // Empate
-                System.out.println("\nEmpate! Nenhum ataque foi realizado neste turno.");
-            }
-        }
-    }
-
-    private static void usarItem(Inventario inventario, Personagem jogador) {
-        inventario.listarItens();
-        System.out.println("0 - sair");
-        System.out.println("Digite o número do item que deseja usar: ");
-    
-        int indice;
-    
-        try {
-            indice = Integer.parseInt(sc.nextLine().trim());
-        
-            if (indice == 0)
-                return;
-        
-            indice--;
-    
-            if (indice < 0 || indice >= inventario.qtdItens()) {
-                System.out.println("Valor inválido.");
-                return;
-            }
-        
-        } catch (NumberFormatException e) {
-            System.out.println("Entrada inválida!");
-            return;
-        }
-    
-        Item item = inventario.getItem(indice);
-    
-        if (item == null) {
-            System.out.println("Item inválido!");
-            return;
-        }
-    
-        item.usar(jogador);
-    
-        inventario.removerItem(item.getNome());
     }
 
 }
