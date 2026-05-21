@@ -1,13 +1,28 @@
 package personagens;
 
+import itens.EfeitoAtaque;
+import itens.EfeitoCura;
 import itens.Item;
 
 public class Pain extends Inimigo {
     public Pain() {
         super("Pain", 220, 35, 20, 4);
 
-        getInventario().adicionarItem(new Item("Rinnegan", "Olho poderoso", "cura", 1));
-        getInventario().adicionarItem(new Item("Explosivo", "Ataque em área", "ataque", 3));
+            getInventario().adicionarItem(
+        new Item(
+            "Rinnegan",
+            "Olho poderoso",
+            new EfeitoCura(60)
+        )
+    );
+    
+    getInventario().adicionarItem(
+        new Item(
+            "Explosivo",
+            "Ataque em área",
+            new EfeitoAtaque(8)
+        )
+    );
     }
 
     @Override

@@ -1,13 +1,29 @@
 package personagens;
 
+import itens.EfeitoCura;
+import itens.EfeitoDefesa;
 import itens.Item;
 
 public class Rasa extends Inimigo {
+
     public Rasa() {
         super("Rasa", 150, 25, 10, 3);
 
-        getInventario().adicionarItem(new Item("Tempestade de Areia", "Protege contra ataques", "defesa", 2));
-        getInventario().adicionarItem(new Item("Poção de Cura", "Recupera HP", "cura", 1));
+        getInventario().adicionarItem(
+            new Item(
+                "Tempestade de Areia",
+                "Protege contra ataques",
+                new EfeitoDefesa(3)
+            )
+        );
+
+        getInventario().adicionarItem(
+            new Item(
+                "Poção de Cura",
+                "Recupera HP",
+                new EfeitoCura(50)
+            )
+        );
     }
 
     @Override

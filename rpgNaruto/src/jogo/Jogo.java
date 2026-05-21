@@ -1,10 +1,17 @@
 package jogo;
 
-import personagens.*;
-import itens.*;
-
+import itens.EfeitoAtaque;
+import itens.EfeitoCura;
+import itens.Inventario;
+import itens.Item;
 import java.util.Random;
 import java.util.Scanner;
+import personagens.Inimigo;
+import personagens.Maligno;
+import personagens.Naruto;
+import personagens.Personagem;
+import personagens.Sakura;
+import personagens.Sasuke;
 
 // Clone sendo utilizado para saquear inventário de inimigos e para restaurar vida do jogador
 
@@ -31,8 +38,20 @@ public class Jogo {
         Personagem jogador = escolherPersonagem();
         Inventario inventario = jogador.getInventario();
 
-        inventario.adicionarItem(new Item("Poção de Cura", "Recupera 50 de HP", "cura", 2));
-        inventario.adicionarItem(new Item("Kunai", "Aumenta o ataque temporariamente", "ataque", 1));
+            inventario.adicionarItem(
+        new Item(
+            "Poção de Cura",
+            "Recupera 50 de HP",
+            new EfeitoCura(50)
+        )
+    );
+      inventario.adicionarItem(
+    new Item(
+        "Kunai",
+        "Aumenta o ataque temporariamente",
+        new EfeitoAtaque(5)
+    )
+);
 
         savePoint = inventario.clone();
 
@@ -40,15 +59,7 @@ public class Jogo {
         System.out.println("\nVocê escolheu: " + jogador.getClass().getSimpleName());
         System.out.println(jogador);
 
-        Local[] locais = {
-                new Local("Névoa Oculta", "Uma vila cercada por neblina e mistérios.", new Zabuza()),
-                new Local("Floresta da Morte", "Lar de perigos e serpentes gigantes.", new Orochimaru()),
-                new Local("Vila Oculta da areia", "Clima árido e desértico... cuidado com as tempestades de areia!", new Rasa()),
-                new Local("Estrada Shinobi", "Área livre de inimigos. Um bom lugar para descansar.", null),
-                new Local("Vila da Chuva", "Chove constantemente... e Pain observa.", new Pain()),
-                new Local("Oráculo do Triunfo", "É um local de poder ancestral indescritível, erguido por uma civilização anterior à fundação das Vilas Ocultas ", new Maligno())
-        };
-
+        Local[] locais = FabricaDeLocais.criarLocais();
 
         int cenaAtual = 0;
         while (cenaAtual != -1) {
@@ -65,18 +76,23 @@ public class Jogo {
             case 0 -> {
                 System.out.println("\n[Konoha – Gabinete da Hokage]");
                 System.out.println("Konoha é a Vila Oculta da Folha, uma das vilas ninja mais fortes.");
-                System.out.println("A Hokage é a líder da vila. No momento é a Tsunade, famosa por força absurda e por curar quase tudo.");
-                System.out.println("Ela te chamou porque não quer que o resto do mundo saiba que Konoha está investigando.");
+                System.out.println(
+                        "A Hokage é a líder da vila. No momento é a Tsunade, famosa por força absurda e por curar quase tudo.");
+                System.out.println(
+                        "Ela te chamou porque não quer que o resto do mundo saiba que Konoha está investigando.");
                 System.out.println();
                 System.out.println("Tsunade: “Tem chakra corrompido vindo da região da Névoa. Três alertas já.”");
-                System.out.println("Tsunade: “Se isso for arma de outra vila, a gente entra em guerra. Então vamos na surdina.”");
+                System.out.println(
+                        "Tsunade: “Se isso for arma de outra vila, a gente entra em guerra. Então vamos na surdina.”");
                 System.out.println("Tsunade: “Você vai sozinho. Se for pego, não diz que é de Konoha.”");
                 System.out.println();
                 System.out.println("Ao lado dela está Kakashi, um jonin de elite, especialista em missão secreta.");
-                System.out.println("Kakashi: “Coleta informação primeiro, briga depois. Viu selo de invocação? Segue o rastro.”");
+                System.out.println(
+                        "Kakashi: “Coleta informação primeiro, briga depois. Viu selo de invocação? Segue o rastro.”");
                 System.out.println();
                 System.out.println("Shikamaru, que cuida de estratégia, fecha o raciocínio:");
-                System.out.println("Shikamaru: “A Névoa parece só o ponto de entrada. A origem está mais pro interior.”");
+                System.out
+                        .println("Shikamaru: “A Névoa parece só o ponto de entrada. A origem está mais pro interior.”");
                 pressionarEnter();
                 return 1;
             }
@@ -87,11 +103,25 @@ public class Jogo {
                 System.out.println("\n[" + alvo.getNome() + "]");
                 System.out.println("A Vila da Névoa é conhecida por missões sujas e por usar neblina como cobertura.");
                 System.out.println("Aqui você sente chakra velho, como se alguém tivesse trazido um lutador de volta.");
-                System.out.println("Um espadachim enorme aparece. É o Zabuza, um ninja da Névoa, famoso por assassinatos e pela espada gigante..");
-                batalhar(jogador, alvo.getInimigo());
+                System.out.println(
+                        "Um espadachim enorme aparece. É o Zabuza, um ninja da Névoa, famoso por assassinatos e pela espada gigante..");
+
+                SistemaDeBatalha sistemaBatalha = new SistemaDeBatalha(sc); // 'sc' é o seu Scanner estático
+               ResultadoBatalha resultado = sistemaBatalha.batalhar(
+    jogador,
+    alvo.getInimigo()
+);
+
+                if (resultado == ResultadoBatalha.DERROTA) {
+                    System.out.println("Você foi derrotado! Aplicando lógica de Save Point/Revive...");
+                    // Chame sua lógica de restauração aqui
+                } else {
+                    System.out.println("Vitória! Avançando na história ninja...");
+                }
 
                 System.out.println("\nAo revistar o corpo, você encontra um selo de invocação RECENTE.");
-                System.out.println("Isso confirma o que o Shikamaru falou: alguém está pagando para trazer gente forte de volta.");
+                System.out.println(
+                        "Isso confirma o que o Shikamaru falou: alguém está pagando para trazer gente forte de volta.");
                 System.out.println("Você pode seguir o rastro agora ou dar uma respirada numa rota segura.");
                 System.out.println("1 - Seguir direto para a Floresta da Morte (rota mais rápida)");
                 System.out.println("2 - Passar na Estrada Shinobi para recuperar (rota mais segura)");
@@ -107,7 +137,8 @@ public class Jogo {
                 System.out.println("\n[" + alvo.getNome() + "]");
                 System.out.println("A Floresta da Morte é usada em exames ninjas porque é perigosa de verdade.");
                 System.out.println("Aqui atuam ninjas que gostam de experimento e teste de corpo.");
-                System.out.println("Quem aparece? Orochimaru, um dos ninjas mais perigosos, obcecado por ganhar poder e viver pra sempre.");
+                System.out.println(
+                        "Quem aparece? Orochimaru, um dos ninjas mais perigosos, obcecado por ganhar poder e viver pra sempre.");
                 batalhar(jogador, alvo.getInimigo());
 
                 System.out.println("\nEntre os pergaminhos dele você encontra menção a 'pagamento vindo do deserto'.");
@@ -125,7 +156,11 @@ public class Jogo {
                 System.out.println("Ninguém briga nesse trecho porque todo mundo precisa desse caminho.");
                 if (new Random().nextBoolean()) {
                     jogador.getInventario().adicionarItem(
-                            new Item("Poção de Cura", "Recupera 50 de HP", "cura", 1)
+                        new Item(
+                            "Poção de Cura",
+                            "Recupera 50 de HP",
+                            new EfeitoCura(50)
+                        )
                     );
                     System.out.println("Um mercador ninja te reconhece e te entrega 1 Poção de Cura.");
                 } else {
@@ -142,8 +177,10 @@ public class Jogo {
                 System.out.println("\n[" + alvo.getNome() + "]");
                 System.out.println("A Vila da Areia é aliada de Konoha, mas não gosta de ser investigada.");
                 System.out.println("Quem te recebe é o Gaara, o Kazekage. Ele virou líder jovem e quer paz.");
-                System.out.println("Gaara: “Se chakra estranho está cruzando o deserto, alguém está nos usando de rota.”");
-                System.out.println("Gaara: “Se você veio de Konoha, é porque Tsunade achou que isso pode virar guerra.”");
+                System.out.println(
+                        "Gaara: “Se chakra estranho está cruzando o deserto, alguém está nos usando de rota.”");
+                System.out
+                        .println("Gaara: “Se você veio de Konoha, é porque Tsunade achou que isso pode virar guerra.”");
                 System.out.println("Perto dos depósitos você vê um baú semi-enterrado.");
                 System.out.println("1 - Abrir o baú (pode ser item, pode ser armadilha)");
                 System.out.println("2 - Ignorar e focar na missão");
@@ -152,11 +189,15 @@ public class Jogo {
                     abrirBauAreia(jogador, alvo.getInimigo());
                 }
                 System.out.println("Assim que você avança, aparece Rasa.");
-                System.out.println("Contexto rápido: Rasa é o antigo Kazekage e controla areia com metal. Ele não confia fácil.");
-                System.out.println("Rasa: “Quero saber por que Konoha está rastreando fluxos de chakra na nossa região.”");
+                System.out.println(
+                        "Contexto rápido: Rasa é o antigo Kazekage e controla areia com metal. Ele não confia fácil.");
+                System.out.println(
+                        "Rasa: “Quero saber por que Konoha está rastreando fluxos de chakra na nossa região.”");
                 batalhar(jogador, alvo.getInimigo());
-                System.out.println("Terminada a luta, chega um mensageiro da Vila da Chuva dizendo que o ritual começou.");
-                System.out.println("Vila da Chuva = lugar onde quase sempre chove e onde surgiram grupos radicais como a Akatsuki.");
+                System.out.println(
+                        "Terminada a luta, chega um mensageiro da Vila da Chuva dizendo que o ritual começou.");
+                System.out.println(
+                        "Vila da Chuva = lugar onde quase sempre chove e onde surgiram grupos radicais como a Akatsuki.");
                 pressionarEnter();
                 return 5;
             }
@@ -211,22 +252,37 @@ public class Jogo {
 
     private static void abrirBauAreia(Personagem jogador, Inimigo inimigoOriginal) throws Exception {
         int tesouro = random.nextInt(1, 4);
-        switch (tesouro) {
-            case 1 -> {
-                jogador.getInventario().adicionarItem(new Item("Poção de Cura", "Recupera 50 de HP", "cura", 1));
-                System.out.println("Você achou uma poção de cura no baú.");
-            }
-            case 2 -> {
-                jogador.setDefesa(jogador.getDefesa() - 2);
-                jogador.setPontosVida(jogador.getPontosVida() - 10);
-                System.out.println("Armadilha de areia! Você perdeu 10 de HP e 2 de defesa.");
-                System.out.println(jogador);
-            }
-            case 3 -> {
-                System.out.println("Você achou um talismã. Ele vai te ajudar contra quem está controlando a areia.");
-                inimigoOriginal.setPontosVida(0);
-            }
+
+          switch (tesouro) {
+
+        case 1 -> {
+            jogador.getInventario().adicionarItem(
+                new Item(
+                    "Poção de Cura",
+                    "Recupera 50 de HP",
+                    new EfeitoCura(50)
+                )
+            );
+
+            System.out.println("Você achou uma poção de cura no baú.");
         }
+
+        case 2 -> {
+            jogador.setDefesa(jogador.getDefesa() - 2);
+            jogador.setPontosVida(jogador.getPontosVida() - 10);
+
+            System.out.println("Armadilha de areia! Você perdeu 10 de HP e 2 de defesa.");
+            System.out.println(jogador);
+        }
+
+        case 3 -> {
+            System.out.println(
+                "Você achou um talismã. Ele vai te ajudar contra quem está controlando a areia."
+            );
+
+            inimigoOriginal.setPontosVida(0);
+        }
+    }
     }
 
     private static Personagem escolherPersonagem() throws Exception {
@@ -322,27 +378,51 @@ public class Jogo {
                     jogador.setPontosVida(jogador.getPontosVida() + 50);
                     // sorteio de poderzinhos
                     int sorte = random.nextInt(4);
+
                     switch (sorte) {
                         case 0:
-                            inventario.adicionarItem(new Item("Kunai", "Aumenta o ataque temporariamente", "ataque", 2));
+                            inventario.adicionarItem(
+                                new Item(
+                                    "Kunai",
+                                    "Aumenta o ataque temporariamente",
+                                    new EfeitoAtaque(5)
+                                )
+                            );
                             break;
+                        
                         case 1:
-                            inventario.adicionarItem(new Item("Poção de Cura", "Recupera 50 de HP", "cura", 2));
+                            inventario.adicionarItem(
+                                new Item(
+                                    "Poção de Cura",
+                                    "Recupera 50 de HP",
+                                    new EfeitoCura(50)
+                                )
+                            );
                             break;
+                        
                         case 2:
-                            inventario.adicionarItem(new Item("Rinnegan", "Poder da vitalidade (+60hp)", "cura", 1));
+                            inventario.adicionarItem(
+                                new Item(
+                                    "Rinnegan",
+                                    "Poder da vitalidade (+60hp)",
+                                    new EfeitoCura(60)
+                                )
+                            );
                             break;
+                        
                         case 3:
                             break;
                     }
-                    //caso o jogador ganhe do inimigo Pain
+                    // caso o jogador ganhe do inimigo Pain
                     if (inimigo.getNome().equalsIgnoreCase("Pain")) {
                         System.out.println("Sua vitória foi convertida em prêmios!\nVocê ganhou +50hp e +8 de defesa.");
                         jogador.setPontosVida(jogador.getPontosVida() + 35);
                         jogador.setDefesa(jogador.getDefesa() + 10);
                     }
                     savePoint = jogador.getInventario().clone();
-                    System.out.println("\nParabéns, você subiu de nível!\nNível atual:" + jogador.getNivel() + "\nAgora o seu ataque e defesa ganharam um upgrade! Seu ataque vale: " + jogador.getAtaque() + " e sua defesa: " + jogador.getDefesa());
+                    System.out.println("\nParabéns, você subiu de nível!\nNível atual:" + jogador.getNivel()
+                            + "\nAgora o seu ataque e defesa ganharam um upgrade! Seu ataque vale: "
+                            + jogador.getAtaque() + " e sua defesa: " + jogador.getDefesa());
                     System.out.println(jogador);
                     return;
                 }
@@ -377,73 +457,40 @@ public class Jogo {
         }
     }
 
-
     private static void usarItem(Inventario inventario, Personagem jogador) {
         inventario.listarItens();
         System.out.println("0 - sair");
         System.out.println("Digite o número do item que deseja usar: ");
+    
         int indice;
+    
         try {
             indice = Integer.parseInt(sc.nextLine().trim());
-            if(indice == 0) return;
-            indice = indice - 1;
-            if((indice+1)>inventario.qtdItens()){
-                System.out.println("valor inválido");
+        
+            if (indice == 0)
+                return;
+        
+            indice--;
+    
+            if (indice < 0 || indice >= inventario.qtdItens()) {
+                System.out.println("Valor inválido.");
                 return;
             }
+        
         } catch (NumberFormatException e) {
             System.out.println("Entrada inválida!");
             return;
         }
-
+    
         Item item = inventario.getItem(indice);
+    
         if (item == null) {
             System.out.println("Item inválido!");
             return;
         }
-
-        // Verifica qual item foi escolhido
-        switch (item.getNome()) {
-            case "Kunai":
-                jogador.setAtaque(jogador.getAtaque() + 5);
-                System.out.println("Você usou uma Kunai e aumentou seu ataque!");
-                break;
-
-            case "Poção de Cura":
-                jogador.setPontosVida(jogador.getPontosVida() + 50);
-                System.out.println("Você usou uma poção e recuperou 50 de HP!");
-                break;
-
-            case "Veneno mortal":
-                jogador.setDefesa(jogador.getDefesa() + 2);
-                System.out.println("Você se fortaleceu com o item!");
-                break;
-
-            case "Pergaminho Secreto":
-                jogador.setAtaque(jogador.getAtaque() + 5);
-                System.out.println("Você usou um pergaminho e ficou mais forte!");
-                break;
-
-            case "Tempestade de Areia":
-                jogador.setDefesa(jogador.getDefesa() + 3);
-                System.out.println("Você usou a areia dourada e aumentou sua defesa!");
-                break;
-
-            case "Rinnegan":
-                jogador.setPontosVida(jogador.getPontosVida() + 60);
-                System.out.println("O poder do Rinnegan restaurou seus pontos de vida!");
-                break;
-
-            case "Explosivo":
-                jogador.setAtaque(jogador.getAtaque() + 8);
-                System.out.println("Explosivos aumentaram seu poder ofensivo!");
-                break;
-
-            default:
-                System.out.println("Esse item não pode ser usado.");
-                return;
-        }
-
+    
+        item.usar(jogador);
+    
         inventario.removerItem(item.getNome());
     }
 

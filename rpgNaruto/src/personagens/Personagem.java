@@ -3,7 +3,7 @@ package personagens;
 import itens.Inventario;
 
 public abstract class Personagem implements Cloneable {
-    String nome;
+    private String nome;
     private int pontosVida;
     private int ataque;
     private int defesa;
@@ -95,19 +95,24 @@ public abstract class Personagem implements Cloneable {
         System.out.println(inimigo.getInventario().toString());
         inimigo.getInventario().limparInventario();
     }
+
     @Override
     public boolean equals(Object o) {
-        if(o == null)return false;
-        if(o == this)return true;
-        if(o.getClass() != this.getClass())return false;
-        Personagem p = (Personagem)o;
-        if(this.nome == p.nome &&
-        this.pontosVida == p.pontosVida &&
-        this.ataque == p.ataque &&
-        this.defesa == p.defesa &&
-        this.nivel == p.nivel &&
-        this.inventario.equals(p.inventario)) return true;
-        return false;
+
+        if (this == o)
+            return true;
+
+        if (!(o instanceof Personagem))
+            return false;
+
+        Personagem p = (Personagem) o;
+
+        return nome.equals(p.nome)
+                && pontosVida == p.pontosVida
+                && ataque == p.ataque
+                && defesa == p.defesa
+                && nivel == p.nivel
+                && inventario.equals(p.inventario);
     }
 
     @Override

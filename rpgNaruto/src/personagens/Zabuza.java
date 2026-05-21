@@ -1,13 +1,29 @@
 package personagens;
 
+import itens.EfeitoAtaque;
+import itens.EfeitoCura;
 import itens.Item;
+
 
 public class Zabuza extends Inimigo {
     public Zabuza() {
         super("Zabuza", 150, 25, 10, 2);
-
-        getInventario().adicionarItem(new Item("Kunai", "Aumenta o ataque temporariamente", "ataque", 3));
-        getInventario().adicionarItem(new Item("Poção de Cura", "Recupera 50 de HP", "cura", 2));
+    
+        getInventario().adicionarItem(
+            new Item(
+                "Kunai",
+                "Aumenta o ataque temporariamente",
+                new EfeitoAtaque(5)
+            )
+        );
+    
+        getInventario().adicionarItem(
+            new Item(
+                "Poção de Cura",
+                "Recupera 50 de HP",
+                new EfeitoCura(50)
+            )
+        );
     }
 
     @Override

@@ -1,7 +1,6 @@
 package itens;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Inventario implements Cloneable {
@@ -42,11 +41,12 @@ public class Inventario implements Cloneable {
     public Item  getItem(int indice) {
         return itens.get(indice);
     }
+ 
     public void transferirItens(Inventario outro) {
-        for (Item item : outro.itens) {
-            this.adicionarItem(item);
-        }
+    for (Item item : outro.itens) {
+        this.adicionarItem(item.clone());
     }
+}
 
     public void limparInventario() {
         itens.clear();
@@ -66,11 +66,15 @@ public class Inventario implements Cloneable {
 
     @Override
     public Inventario clone() {
-        Inventario inv = null;
+    
         try {
-            inv = new Inventario(this);
-        } catch (Exception erro) {}
-        return inv;
+            return new Inventario(this);
+        } catch (Exception erro) {
+            throw new RuntimeException(
+                "Erro ao clonar inventário",
+                erro
+            );
+        }
     }
 
     public void listarItens() {
@@ -106,11 +110,16 @@ public class Inventario implements Cloneable {
     }
 
     @Override
-    public boolean equals(Object obj){
-        if(obj == null) return false;
-        if(obj.getClass() != this.getClass()) return false;
-        if(obj == this) return true;
-        return false;
+    public boolean equals(Object obj) {
+
+        if (this == obj)
+            return true;
+
+        if (!(obj instanceof Inventario))
+            return false;
+
+        Inventario outro = (Inventario) obj;
+        return this.itens.equals(outro.itens);
     }
 
     @Override

@@ -1,13 +1,27 @@
 package personagens;
 
+import itens.EfeitoAtaque;
 import itens.Item;
 
 public class Orochimaru extends Inimigo {
-    public Orochimaru() {
+     public Orochimaru() {
         super("Orochimaru", 180, 30, 15, 3);
-
-        getInventario().adicionarItem(new Item("Veneno Mortal", "Diminui HP gradualmente", "ataque", 2));
-        getInventario().adicionarItem(new Item("Pergaminho Secreto", "Habilidade ninja", "habilidade", 1));
+    
+        getInventario().adicionarItem(
+            new Item(
+                "Veneno Mortal",
+                "Diminui HP gradualmente",
+                new EfeitoAtaque(6)
+            )
+        );
+    
+        getInventario().adicionarItem(
+            new Item(
+                "Pergaminho Secreto",
+                "Habilidade ninja",
+                new EfeitoAtaque(5)
+            )
+        );
     }
 
     @Override
