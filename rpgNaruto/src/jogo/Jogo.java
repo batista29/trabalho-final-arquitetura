@@ -5,19 +5,27 @@ import itens.Inventario;
 import java.util.Random;
 import java.util.Scanner;
 import personagens.Inimigo;
-import personagens.Naruto;
 import personagens.Personagem;
-import personagens.Sakura;
-import personagens.Sasuke;
 import servicos.ResultadoBatalha;
+import servicos.ServicoBatalha;
+import servicos.ServicoDeItens;
 import servicos.ServicoDeRecompensa;
+import servicos.ServicoItens;
+import servicos.ServicoRecompensa;
 import servicos.SistemaDeBatalha;
 
 // Clone sendo utilizado para saquear inventário de inimigos e para restaurar vida do jogador
 
 public class Jogo {
-    private static Scanner sc = new Scanner(System.in);
-    private static Random random = new Random();
+    private static final Scanner sc = new Scanner(System.in);
+    private static final Random random = new Random();
+    private static final ServicoItens servicoItens = new ServicoDeItens();
+    private static final ServicoBatalha servicoBatalha =
+            new SistemaDeBatalha(sc, random, servicoItens);
+    private static final ServicoRecompensa servicoRecompensa =
+            new ServicoDeRecompensa(random);
+    private static final FabricaDePersonagens fabricaDePersonagens =
+            new FabricaDePersonagens();
 
     private static Inventario savePoint;
     private static int revivesRestantes = 2;
@@ -242,11 +250,10 @@ public class Jogo {
 
     private static ResultadoBatalha enfrentar(Personagem jogador, Inimigo inimigo) {
         while (true) {
-            SistemaDeBatalha sistema = new SistemaDeBatalha(sc);
-            ResultadoBatalha resultado = sistema.batalhar(jogador, inimigo);
+            ResultadoBatalha resultado = servicoBatalha.batalhar(jogador, inimigo);
 
             if (resultado == ResultadoBatalha.VITORIA) {
-                ServicoDeRecompensa.aplicarVitoria(jogador, inimigo);
+                servicoRecompensa.aplicarVitoria(jogador, inimigo);
                 savePoint = jogador.getInventario().clone();
                 System.out.println("Vitoria! Avancando na historia ninja...");
                 return resultado;
@@ -310,20 +317,24 @@ public class Jogo {
 
     private static Personagem escolherPersonagem() throws Exception {
         System.out.println("Escolha seu personagem:");
-        System.out.println("1 - Naruto");
-        System.out.println("2 - Sasuke");
-        System.out.println("3 - Sakura");
+        for (OpcaoDePersonagem opcaoPersonagem : fabricaDePersonagens.listarOpcoes()) {
+            System.out.println(
+                opcaoPersonagem.getCodigo()
+                + " - "
+                + opcaoPersonagem.getNome()
+            );
+        }
         System.out.print("Digite o número: ");
         String opcao = sc.nextLine();
         System.out.println("----------------------------------------------\n");
 
         return switch (opcao) {
-            case "1" -> new Naruto();
-            case "2" -> new Sasuke();
-            case "3" -> new Sakura();
+            case "1" -> fabricaDePersonagens.criarPorCodigo(opcao);
+            case "2" -> fabricaDePersonagens.criarPorCodigo(opcao);
+            case "3" -> fabricaDePersonagens.criarPorCodigo(opcao);
             default -> {
                 System.out.println("Opção inválida, será escolhido o Naruto por padrão.");
-                yield new Naruto();
+                yield fabricaDePersonagens.criarPorCodigo(opcao);
             }
         };
     }

@@ -5,14 +5,16 @@ import java.util.Random;
 import personagens.Inimigo;
 import personagens.Personagem;
 
-public class ServicoDeRecompensa {
+public class ServicoDeRecompensa implements ServicoRecompensa {
 
-    private static final Random random = new Random();
+    private final Random random;
 
-    private ServicoDeRecompensa() {
+    public ServicoDeRecompensa(Random random) {
+        this.random = random;
     }
 
-    public static void aplicarVitoria(Personagem jogador, Inimigo inimigo) {
+    @Override
+    public void aplicarVitoria(Personagem jogador, Inimigo inimigo) {
         jogador.receberItensDoInimigo(inimigo);
         subirNivel(jogador);
         sortearItem(jogador);
@@ -31,14 +33,14 @@ public class ServicoDeRecompensa {
         System.out.println(jogador);
     }
 
-    private static void subirNivel(Personagem jogador) {
+    private void subirNivel(Personagem jogador) {
         jogador.setNivel(jogador.getNivel() + 1);
         jogador.setAtaque(jogador.getAtaque() + 10);
         jogador.setDefesa(jogador.getDefesa() + 3);
         jogador.setPontosVida(jogador.getPontosVida() + 50);
     }
 
-    private static void sortearItem(Personagem jogador) {
+    private void sortearItem(Personagem jogador) {
         int sorte = random.nextInt(4);
 
         switch (sorte) {

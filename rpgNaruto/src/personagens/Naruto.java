@@ -23,7 +23,6 @@ public class Naruto extends Personagem {
 
         if (inimigo.getPontosVida() <= 0) {
             System.out.println(inimigo.getNome() + " foi derrotado!");
-            this.receberItensDoInimigo(inimigo);
         }
     }
 

@@ -5,12 +5,13 @@ import itens.Item;
 import java.util.Scanner;
 import personagens.Personagem;
 
-public class ServicoDeItens {
+public class ServicoDeItens implements ServicoItens {
 
-    private ServicoDeItens() {
+    public ServicoDeItens() {
     }
 
-    public static void escolherEUsarItem(
+    @Override
+    public void escolherEUsarItem(
             Inventario inventario,
             Personagem jogador,
             Scanner scanner) {
@@ -47,7 +48,7 @@ public class ServicoDeItens {
         usarItem(inventario, jogador, indice);
     }
 
-    public static void usarItem(
+    public void usarItem(
             Inventario inventario,
             Personagem jogador,
             int indice) {

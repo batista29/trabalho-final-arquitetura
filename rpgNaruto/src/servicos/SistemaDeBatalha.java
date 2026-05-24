@@ -5,15 +5,22 @@ import java.util.Scanner;
 import personagens.Inimigo;
 import personagens.Personagem;
 
-public class SistemaDeBatalha {
+public class SistemaDeBatalha implements ServicoBatalha {
 
     private final Scanner scanner;
-    private final Random random = new Random();
+    private final Random random;
+    private final ServicoItens servicoItens;
 
-    public SistemaDeBatalha(Scanner scanner) {
+    public SistemaDeBatalha(
+            Scanner scanner,
+            Random random,
+            ServicoItens servicoItens) {
         this.scanner = scanner;
+        this.random = random;
+        this.servicoItens = servicoItens;
     }
 
+    @Override
     public ResultadoBatalha batalhar(Personagem jogador, Inimigo inimigo) {
         System.out.println("\n--- Batalha iniciada contra " + inimigo.getNome() + " ---");
 
@@ -42,7 +49,7 @@ public class SistemaDeBatalha {
             int dado = random.nextInt(1, 11);
             jogador.atacar(inimigo, dado);
         } else if (opcao.equals("2")) {
-            ServicoDeItens.escolherEUsarItem(
+            servicoItens.escolherEUsarItem(
                 jogador.getInventario(),
                 jogador,
                 scanner
