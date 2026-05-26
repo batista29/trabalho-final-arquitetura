@@ -8,24 +8,38 @@ import personagens.Inimigo;
 import personagens.Personagem;
 import servicos.ResultadoBatalha;
 import servicos.ServicoBatalha;
-import servicos.ServicoDeItens;
 import servicos.ServicoDeRecompensa;
-import servicos.ServicoItens;
+import servicos.ServicoItensImpl;
+import servicos.ServicoItensInterface;
 import servicos.ServicoRecompensa;
 import servicos.SistemaDeBatalha;
+import ui.ConsoleItemUI;
 
 // Clone sendo utilizado para saquear inventário de inimigos e para restaurar vida do jogador
 
 public class Jogo {
     private static final Scanner sc = new Scanner(System.in);
     private static final Random random = new Random();
-    private static final ServicoItens servicoItens = new ServicoDeItens();
-    private static final ServicoBatalha servicoBatalha =
-            new SistemaDeBatalha(sc, random, servicoItens);
+
+    private static final ConsoleItemUI consoleItemUI =
+        new ConsoleItemUI(sc);
+
+    private static final ServicoItensInterface servicoItens =
+        new ServicoItensImpl();
+
     private static final ServicoRecompensa servicoRecompensa =
-            new ServicoDeRecompensa(random);
+        new ServicoDeRecompensa(random);
+
+    private static final ServicoBatalha servicoBatalha =
+        new SistemaDeBatalha(
+            sc,
+            random,
+            servicoItens,
+            consoleItemUI
+        );
+
     private static final FabricaDePersonagens fabricaDePersonagens =
-            new FabricaDePersonagens();
+        new FabricaDePersonagens();
 
     private static Inventario savePoint;
     private static int revivesRestantes = 2;

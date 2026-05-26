@@ -4,20 +4,25 @@ import java.util.Random;
 import java.util.Scanner;
 import personagens.Inimigo;
 import personagens.Personagem;
+import ui.ConsoleItemUI;
 
 public class SistemaDeBatalha implements ServicoBatalha {
 
     private final Scanner scanner;
     private final Random random;
-    private final ServicoItens servicoItens;
+    private final ServicoItensInterface servicoItens;
+    private final ConsoleItemUI consoleItemUI;
 
     public SistemaDeBatalha(
             Scanner scanner,
             Random random,
-            ServicoItens servicoItens) {
-        this.scanner = scanner;
-        this.random = random;
-        this.servicoItens = servicoItens;
+            ServicoItensInterface servicoItens,
+            ConsoleItemUI consoleItemUI) {
+            
+            this.scanner = scanner;
+            this.random = random;
+            this.servicoItens = servicoItens;
+            this.consoleItemUI = consoleItemUI;
     }
 
     @Override
@@ -49,11 +54,15 @@ public class SistemaDeBatalha implements ServicoBatalha {
             int dado = random.nextInt(1, 11);
             jogador.atacar(inimigo, dado);
         } else if (opcao.equals("2")) {
-            servicoItens.escolherEUsarItem(
+           int indice = consoleItemUI.escolherItem(jogador.getInventario());
+
+        if (indice != -1) {
+            servicoItens.usarItem(
                 jogador.getInventario(),
                 jogador,
-                scanner
+                indice
             );
+        }
         } else if (opcao.equals("3")) {
             if (random.nextBoolean()) {
                 System.out.println("Voce conseguiu fugir!");
