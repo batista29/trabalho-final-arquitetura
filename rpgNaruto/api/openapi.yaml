@@ -1,0 +1,75 @@
+openapi: 3.1.0
+info:
+  title: RPG Naruto - API de Jogo
+  version: 1.0.0
+  description: API REST para gerenciamento de partidas do RPG Naruto.
+servers:
+  - url: https://api.rpgnaruto.com/v1
+paths:
+  /partidas:
+    post:
+      summary: Criar nova partida
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                personagem:
+                  type: string
+                  enum:
+                    - naruto
+                    - sasuke
+                    - sakura
+      responses:
+        '201':
+          description: Partida criada com sucesso
+  /partidas/{id}:
+    get:
+      summary: Consultar estado da partida
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Partida encontrada
+  /partidas/{id}/inventario:
+    get:
+      summary: Consultar inventário
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Inventário retornado
+components:
+  schemas:
+    Personagem:
+      type: object
+      properties:
+        nome:
+          type: string
+        pontosVida:
+          type: integer
+        ataque:
+          type: integer
+        defesa:
+          type: integer
+        nivel:
+          type: integer
+    Item:
+      type: object
+      properties:
+        nome:
+          type: string
+        descricao:
+          type: string
+        quantidade:
+          type: integer
