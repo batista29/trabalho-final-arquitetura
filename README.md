@@ -73,22 +73,6 @@ Importe a pasta do projeto normalmente.
 
 ---
 
-### 4. Executar pela IDE
-
-Localize a classe:
-
-```text
-src/jogo/GameLauncher.java
-```
-
-Execute o método:
-
-```java
-public static void main(String[] args)
-```
-
----
-
 ### 5. Executar pelo Terminal
 
 Acesse a pasta `src`:
