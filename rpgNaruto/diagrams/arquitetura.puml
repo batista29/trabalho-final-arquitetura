@@ -1,0 +1,93 @@
+@startuml
+
+package "UI" {
+    class ConsoleItemUI
+}
+
+package "Jogo" {
+    class GameLauncher
+    class GameFactory
+    class Jogo
+    class GameFlow
+    class JogoActions
+    class SistemaDeBatalha
+    class FabricaDeLocais
+    class FabricaDePersonagens
+    class Local
+    class OpcaoDePersonagem
+}
+
+package "Serviços" {
+    interface ServicoItensInterface
+    class ServicoItensImpl
+    class ServicoBatalha
+    class ServicoDeRecuperacao
+    class ResultadoBatalha
+}
+
+package "Personagens" {
+    abstract class Personagem
+    class Naruto
+    class Sasuke
+    class Sakura
+
+    class Inimigo
+    class Zabuza
+    class Orochimaru
+    class Pain
+    class Rasa
+    class Maligno
+}
+
+package "Itens" {
+    class Inventario
+    class Item
+
+    interface EfeitoDeItem
+    class EfeitoCura
+    class EfeitoAtaque
+    class EfeitoDefesa
+
+    class FabricaDeItens
+}
+
+GameLauncher --> GameFactory
+GameFactory --> Jogo
+
+Jogo --> GameFlow
+Jogo --> JogoActions
+
+Jogo --> ServicoBatalha
+Jogo --> ServicoItensInterface
+Jogo --> ServicoDeRecuperacao
+
+GameFlow --> Local
+
+FabricaDeLocais --> Local
+FabricaDePersonagens --> Personagem
+
+Personagem --> Inventario
+Inventario --> Item
+
+Item --> EfeitoDeItem
+
+EfeitoCura ..|> EfeitoDeItem
+EfeitoAtaque ..|> EfeitoDeItem
+EfeitoDefesa ..|> EfeitoDeItem
+
+FabricaDeItens --> Item
+
+Personagem <|-- Naruto
+Personagem <|-- Sasuke
+Personagem <|-- Sakura
+Personagem <|-- Inimigo
+
+Inimigo <|-- Zabuza
+Inimigo <|-- Orochimaru
+Inimigo <|-- Pain
+Inimigo <|-- Rasa
+Inimigo <|-- Maligno
+
+ServicoItensImpl ..|> ServicoItensInterface
+
+@enduml

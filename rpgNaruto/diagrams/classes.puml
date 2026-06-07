@@ -1,0 +1,48 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+
+interface EfeitoDeItem {
+    +aplicar(Personagem)
+}
+
+class EfeitoCura
+class EfeitoAtaque
+class EfeitoDefesa
+
+EfeitoCura ..|> EfeitoDeItem
+EfeitoAtaque ..|> EfeitoDeItem
+EfeitoDefesa ..|> EfeitoDeItem
+
+class Item {
+    -efeito : EfeitoDeItem
+    +usar(Personagem)
+    +clone()
+}
+
+Item --> EfeitoDeItem
+
+class Inventario {
+    +clone()
+}
+
+Inventario *-- Item
+
+class FabricaDeItens {
+    +criarPocao()
+    +criarKunai()
+}
+
+class FabricaDePersonagens {
+    +criarPorCodigo()
+}
+
+class FabricaDeLocais {
+    +criarLocais()
+}
+
+FabricaDeItens --> Item
+FabricaDePersonagens --> Personagem
+FabricaDeLocais --> Local
+
+@enduml

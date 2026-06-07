@@ -1,0 +1,46 @@
+@startuml
+
+actor Jogador
+
+participant GameLauncher
+participant GameFactory
+participant Jogo
+participant GameFlow
+participant JogoActions
+participant ServicoBatalha
+participant Personagem
+participant Inimigo
+
+Jogador -> GameLauncher : Executar jogo
+
+GameLauncher -> GameFactory : criarJogo()
+
+GameFactory --> GameLauncher : Jogo
+
+GameLauncher -> Jogo : iniciar()
+
+Jogo -> Jogo : escolherPersonagem()
+
+Jogo -> GameFlow : executarCena()
+
+GameFlow -> JogoActions : iniciar batalha
+
+JogoActions -> ServicoBatalha : batalhar(jogador,inimigo)
+
+ServicoBatalha -> Personagem : atacar(inimigo,dado)
+
+Personagem -> Inimigo : reduzir HP
+
+Inimigo --> ServicoBatalha : HP atualizado
+
+ServicoBatalha -> Inimigo : atacar(jogador,dado)
+
+Inimigo -> Personagem : reduzir HP
+
+ServicoBatalha --> JogoActions : ResultadoBatalha
+
+JogoActions --> GameFlow : resultado
+
+GameFlow --> Jogo : próxima cena
+
+@enduml
